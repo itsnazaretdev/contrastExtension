@@ -1,4 +1,12 @@
-node_modules
+# Extension Development Host files
 .vscode-test/
+
+# Dependencies
+node_modules/
+
+# Compilation outputs / Mac garbage
 *.vsix
-.env
+.DS_Store
+
+# Local VS Code settings
+.vscode/launch.json

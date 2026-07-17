@@ -1,65 +1,84 @@
-# contrast-checker README
+<!-- # 🎨 Contrast Checker for VS Code -->
+![WCAG Compliance](https://img.shields.io/badge/WCAG_2.1-Compliant-success?style=for-the-badge&logo=w3c&logoColor=white)
+![Supported Formats](https://img.shields.io/badge/Formats-HEX_%7C_RGB_%7C_HSL-blue?style=for-the-badge)
+![Dependencies](https://img.shields.io/badge/Dependencies-None_(Zero--Config)-orange?style=for-the-badge)
 
-This is the README for your extension "contrast-checker". After writing up a brief description, we recommend including the following sections.
+A lightweight, high-precision Visual Studio Code extension to verify color contrast ratios directly from your stylesheets. Ensure your UI matches the international web accessibility standards without leaving your editor.
 
-## Features
+This extension streamlines web development workflows by allowing fast validation of text-to-background contrast while coding, avoiding the friction of switching to external browser tools.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## 🎯 Why this extension?
 
-For example if there is an image subfolder under your extension project workspace:
+This extension was built to solve specific workflow gaps:
 
-\!\[feature X\]\(images/feature-x.png\)
+* **Format-Agnostic:** This extension natively parses **HEX**, **RGB**, and **HSL**  without requiring manual conversion.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+* **On-Demand & Non-Intrusive:** Instead of scanning entire files and cluttering your editor with warning squiggles, it runs only when you request it, keeping your workspace clean.
 
-## Requirements
+* **Granular Compliance Matrix:** Rather than giving a single raw number or a generic pass/fail, it instantly breaks down your selection into the 4 official WCAG criteria so you know exactly where your contrast stands.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## ✨ Features
 
-## Extension Settings
+* **Multi-Format Parsing:** Seamlessly reads colors written in **HEX**, **RGB**, and **HSL** formats.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+* **WCAG 2.1 Compliance:** Computes exact relative luminance to calculate strict contrast ratios.
 
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+* **Granular 4-Level Report:** Outputs a detailed compliance breakdown in a dedicated Output Channel:
+  * `AA Normal Text` (Minimum 4.5:1)
+  * `AAA Normal Text` (Minimum 7.0:1)
+  * `AA Large Text` (Minimum 3.0:1)
+  * `AAA Large Text` (Minimum 4.5:1)
+  
+* **Bidirectional Validation:** Works perfectly whether you select the text color or the background color first.
 
 ---
 
-## Working with Markdown
+## 🚀 How it works & architecture
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+The extension is engineered with performance and reliability in mind, utilizing strict **JSDoc** typing to ensure type safety without adding runtime overhead.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
+1. **Color Normalization:** The `parseColorToRGB` module translates varied CSS formats into a unified RGB numerical space ($0-255$).
+2. **Luminance Calculation:** Applies the W3C coefficients to determine the exact brightness perceived by the human eye.
+3. **Contrast Ratio Matrix:** Evaluates the luminance ratio and returns direct visual feedback (`[🎉 PASS]` / `[❌ FAIL]`) into the VS Code interface.
 
-## For more information
+---
+## 🛠️ How to use
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+No external dependencies or configuration required. 
 
-**Enjoy!**
+1. Select any two color strings in your file (HEX, RGB, or HSL).
+2. **Right-click** on the selection.
+3. Click on **`Contrast Checker: Check Selection`** in the context menu.
+4. Check the results instantly in the **Output** panel (under the `Contrast Checker` tab).
+
+> 💡 **Tip for Multiple Selections:** To select two non-consecutive color strings, hold `Ctrl` (Windows/Linux) or `Cmd` (macOS) while making your selections.
+
+## ⚙️ Extension settings
+
+This extension currently operates on a zero-config basis to keep your workspace fast and lightweight. 
+
+## 🐛 Known issues & roadmap
+
+### Current limitations
+* Modern CSS functions like `color-mix()` or CSS variables (`var(--main-color)`) are currently not parsed.
+
+* **Tailwind CSS:** The extension successfully parses raw color formats inside arbitrary values (e.g., `text-[#3b82f6]`), but it does not currently resolve standard Tailwind class names (e.g., `text-blue-500`).
+
+### 🗺️ Future roadmap
+Given the massive adoption of Tailwind CSS and modern CSS architectures, the next planned releases will focus on:
+
+1. **Tailwind Class Resolver:** Integrating `resolveConfig` to automatically map standard classes (like `bg-slate-100`) to their HEX values by reading the local `tailwind.config.js`.
+
+2. **CSS Custom Properties Support:** Resolving CSS variables by scanning the document's `:root` declarations.
+
+## 📜 Release notes
+
+### 1.0.0
+* Initial release.
+* Support for HEX, RGB, and HSL color strings.
+* Full 4-tier WCAG 2.1 report matrix implementation.
+* Native Output Channel printing integration.
+
+---
+---
+*Developed with ❤️ for an accessible web.*
