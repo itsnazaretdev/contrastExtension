@@ -2,6 +2,7 @@
 ![WCAG Compliance](https://img.shields.io/badge/WCAG_2.1-Compliant-success?style=for-the-badge&logo=w3c&logoColor=white)
 ![Supported Formats](https://img.shields.io/badge/Formats-HEX_%7C_RGB_%7C_HSL-blue?style=for-the-badge)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None_(Zero--Config)-orange?style=for-the-badge)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 A lightweight, high-precision Visual Studio Code extension to verify color contrast ratios directly from your stylesheets. Ensure your UI matches the international web accessibility standards without leaving your editor.
 
@@ -78,6 +79,11 @@ Given the massive adoption of Tailwind CSS and modern CSS architectures, the nex
 * Support for HEX, RGB, and HSL color strings.
 * Full 4-tier WCAG 2.1 report matrix implementation.
 * Native Output Channel printing integration.
+
+---
+## ⚖️ License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 ---
