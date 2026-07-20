@@ -56,6 +56,8 @@ No external dependencies or configuration required.
 
 ## 📦 Manual Installation (.vsix)
 
+This extension is compatible with other VS Code-based editors, such as **Cursor**, **VSCodium**, **Windsurf**, or **Trae**.
+
 If you downloaded the `.vsix` file directly from the [Releases](../../releases) page, you can install it manually using any of these methods:
 
 ### Option 1: Drag & Drop 
