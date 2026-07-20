@@ -56,13 +56,20 @@ No external dependencies or configuration required.
 
 ## 📦 Manual Installation (.vsix)
 
-If you downloaded the `.vsix` file from the [Releases](../../releases) page, you can easily install it manually in Visual Studio Code:
+If you downloaded the `.vsix` file directly from the [Releases](../../releases) page, you can install it manually using any of these methods:
 
+### Option 1: Drag & Drop (Easiest)
 1. Open **VS Code**.
 2. Go to the **Extensions** view (`Ctrl+Shift+X` / `Cmd+Shift+X`).
 3. Drag and drop the downloaded `.vsix` file into the extensions sidebar.
 
-*Alternatively, click the three dots (**`...`**) in the top-right corner of the Extensions panel and select **Install from VSIX...***
+### Option 2: Extensions Menu
+Click the three dots (**`...`**) in the top-right corner of the Extensions panel and select **Install from VSIX...**
+
+### Option 3: Terminal (CLI)
+Run the following command in your terminal:
+
+`code --install-extension contrast-checker-0.0.1.vsix `
 
 ---
 
