@@ -1,4 +1,4 @@
-<!-- # 🎨 Contrast Checker for VS Code -->
+# 🎨 Contrast Checker for VS Code
 ![WCAG Compliance](https://img.shields.io/badge/WCAG_2.1-Compliant-success?style=for-the-badge&logo=w3c&logoColor=white)
 ![Supported Formats](https://img.shields.io/badge/Formats-HEX_%7C_RGB_%7C_HSL-blue?style=for-the-badge)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None_(Zero--Config)-orange?style=for-the-badge)
@@ -52,7 +52,19 @@ No external dependencies or configuration required.
 3. Click on **`Contrast Checker: Check Selection`** in the context menu.
 4. Check the results instantly in the **Output** panel (under the `Contrast Checker` tab).
 
-> 💡 **Tip for Multiple Selections:** To select two non-consecutive color strings, hold `Ctrl` (Windows/Linux) or `Cmd` (macOS) while making your selections.
+> 💡 **Tip for Multiple Selections:** To select two separate color strings, hold `Alt` (Windows/Linux) or `Option` (macOS) while making your selections with the mouse.
+
+## 📦 Manual Installation (.vsix)
+
+If you downloaded the `.vsix` file from the [Releases](../../releases) page, you can easily install it manually in Visual Studio Code:
+
+1. Open **VS Code**.
+2. Go to the **Extensions** view (`Ctrl+Shift+X` / `Cmd+Shift+X`).
+3. Drag and drop the downloaded `.vsix` file into the extensions sidebar.
+
+*Alternatively, click the three dots (**`...`**) in the top-right corner of the Extensions panel and select **Install from VSIX...***
+
+---
 
 ## ⚙️ Extension settings
 
