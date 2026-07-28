@@ -1,8 +1,9 @@
-const assert = require("assert");
-
 // Puedes importar VS Code si necesitas probar su API
+const assert = require("assert");
 const vscode = require("vscode");
-// const myExtension = require('../../extension');
+
+require("./color.parse.test.js");
+require("./contrast.calc.test.js");
 
 suite("Extension Test Suite", () => {
   vscode.window.showInformationMessage("Start all tests.");

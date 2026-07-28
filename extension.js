@@ -227,4 +227,8 @@ function deactivate() {}
 module.exports = {
   activate,
   deactivate,
+  extractColors,
+  parseColorToRGB,
+  calculateLuminance,
+  calculateContrastRatio,
 };

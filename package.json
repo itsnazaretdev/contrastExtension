@@ -2,13 +2,15 @@
   "name": "contrast-checker",
   "displayName": "Contrast Checker",
   "description": "Instantly calculate WCAG color contrast ratio from any text selection in your editor",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "publisher": "itsnazaretdev",
+  "icon": "logoCC.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/itsnazaretdev/contrastExtension.git"
   },
   "engines": {
-    "vscode": "^1.125.0"
+    "vscode": "1.80.0"
   },
   "categories": [
     "Other"
@@ -38,15 +40,16 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.125.0",
-    "@types/mocha": "^10.0.10",
+    "@types/vscode": "1.80.0",
+    "@types/mocha": "10.0.10",
     "@types/node": "24.x",
-    "eslint": "^10.5.0",
-    "@vscode/test-cli": "^0.0.15",
-    "@vscode/test-electron": "^3.0.0"
+    "eslint": "10.5.0",
+    "globals": "14.0.0",
+    "@vscode/test-cli": "0.0.15",
+    "@vscode/test-electron": "3.0.0"
   },
   "overrides": {
-    "diff": "^8.0.4",
-    "serialize-javascript": "^7.0.6"
+    "diff": "8.0.4",
+    "serialize-javascript": "7.0.6"
   }
 }
