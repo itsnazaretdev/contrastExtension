@@ -2,7 +2,7 @@
   "name": "contrast-checker",
   "displayName": "Contrast Checker",
   "description": "Instantly calculate WCAG color contrast ratio from any text selection in your editor",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "itsnazaretdev",
   "icon": "logoCC.png",
   "repository": {
@@ -10,7 +10,7 @@
     "url": "https://github.com/itsnazaretdev/contrastExtension.git"
   },
   "engines": {
-    "vscode": "1.80.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
@@ -37,7 +37,8 @@
   "scripts": {
     "lint": "eslint .",
     "pretest": "pnpm run lint",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "package": "pnpm exec vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/vscode": "1.80.0",
@@ -46,7 +47,8 @@
     "eslint": "10.5.0",
     "globals": "14.0.0",
     "@vscode/test-cli": "0.0.15",
-    "@vscode/test-electron": "3.0.0"
+    "@vscode/test-electron": "3.0.0",
+    "@vscode/vsce": "^2.0.2"
   },
   "overrides": {
     "diff": "8.0.4",

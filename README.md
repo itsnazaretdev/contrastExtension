@@ -4,6 +4,11 @@
 ![Dependencies](https://img.shields.io/badge/Dependencies-None_(Zero--Config)-orange?style=for-the-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+--- 
+<img src="logoCC.png" alt="Extension logo" width="90">
+
+---
+
 A lightweight, high-precision Visual Studio Code extension to verify color contrast ratios directly from your stylesheets. Ensure your UI matches the international web accessibility standards without leaving your editor.
 
 This extension streamlines web development workflows by allowing fast validation of text-to-background contrast while coding, avoiding the friction of switching to external browser tools.
@@ -48,6 +53,10 @@ The extension is engineered with performance and reliability in mind, utilizing 
 No external dependencies or configuration required. 
 
 1. Select any two color strings in your file (HEX, RGB, or HSL).
+
+<img src="select.png" alt="How to do it" width="450">
+
+
 2. **Right-click** on the selection.
 3. Click on **`Contrast Checker: Check Selection`** in the context menu.
 4. Check the results instantly in the **Output** panel (under the `Contrast Checker` tab).

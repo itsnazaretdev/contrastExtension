@@ -30,6 +30,20 @@ suite("Color Parsing", () => {
     });
   });
 
+  test("extracts new Color numeric tuples as rgb", () => {
+    const result = extractColors("notesScroll.setBackground(new Color(250, 250, 250));");
+    assert.strictEqual(result.length, 1);
+    assert.deepStrictEqual(result[0], {
+      original: "new Color(250, 250, 250)",
+      type: "rgb",
+    });
+    assert.deepStrictEqual(parseColorToRGB(result[0]), {
+      r: 250,
+      g: 250,
+      b: 250,
+    });
+  });
+
   test("parses hsl colors at black and white boundaries", () => {
     assert.deepStrictEqual(parseColorToRGB({ original: "hsl(0, 0%, 0%)", type: "hsl" }), {
       r: 0,
@@ -43,11 +57,7 @@ suite("Color Parsing", () => {
     });
   });
 
-  test("returns zero values for invalid rgb input", () => {
-    assert.deepStrictEqual(parseColorToRGB({ original: "rgb()", type: "rgb" }), {
-      r: 0,
-      g: 0,
-      b: 0,
-    });
+  test("returns null for invalid rgb input", () => {
+    assert.strictEqual(parseColorToRGB({ original: "rgb()", type: "rgb" }), null);
   });
 });

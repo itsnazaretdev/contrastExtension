@@ -25,16 +25,16 @@ function activate(context) {
         return;
       }
 
-      // 1. Extract raw strings that look like colors
+      // 1. Extract raw color candidates
       const rawColorStrings = extractColors(selectedText);
 
       // 2. Validate and convert them to strict RGB objects
       const validColors = [];
-      for (const colorStr of rawColorStrings) {
-        const parsed = parseColorToRGB(colorStr);
+      for (const colorCandidate of rawColorStrings) {
+        const parsed = parseColorToRGB(colorCandidate);
         if (parsed) {
           validColors.push({
-            original: colorStr,
+            original: colorCandidate.original,
             rgb: parsed,
           });
         }
@@ -103,51 +103,56 @@ function activate(context) {
  * @returns {{ original: string, type: 'hex' | 'rgb' | 'hsl' }[]} Un array de objetos con el color original y su formato.
  */
 function extractColors(text) {
-  // Expresión regular que detecta HEX, RGB/RGBA y HSL/HSLA
-  const colorRegex =
-    /#([0-9a-fA-F]{3,8})|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*(?:0|1|0?\.\d+))?\)|hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*(?:0|1|0?\.\d+))?\)/g;
+  /** @type {{ original: string, type: 'hex' | 'rgb' | 'hsl' }[]} */
+  const results = [];
 
-  const matches = text.match(colorRegex) || [];
-  return matches.map((match) => {
-    /** @type {'hex' | 'rgb' | 'hsl'} */
-    let type = "hex";
-    if (match.startsWith("rgb")) {
-      type = "rgb";
-    } else if (match.startsWith("hsl")) {
-      type = "hsl";
-    }
-    return {
-      original: match,
-      type: type,
-    };
-  });
+  const hexRegex = /#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/gi;
+  const rgbRegex = /rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)/gi;
+  const hslRegex = /hsla?\(\s*\d{1,3}(?:\.\d+)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)/gi;
+
+  for (const match of text.matchAll(hexRegex)) {
+    results.push({ original: match[0].trim(), type: "hex" });
+  }
+  for (const match of text.matchAll(rgbRegex)) {
+    results.push({ original: match[0].trim(), type: "rgb" });
+  }
+  for (const match of text.matchAll(hslRegex)) {
+    results.push({ original: match[0].trim(), type: "hsl" });
+  }
+
+  return results;
 }
 
 /**
  * Converts a color object (HEX, RGB, or HSL) into a unified format of numerical R, G, B values.
  *
  * @param {{ original: string, type: 'hex' | 'rgb' | 'hsl' }} colorObj - The object containing the color text and its type.
- * @returns {{ r: number, g: number, b: number }} An object with Red, Green, and Blue components (from 0 to 255).
+ * @returns {{ r: number, g: number, b: number } | null} An object with Red, Green, and Blue components (from 0 to 255), or null on invalid input.
  */
 function parseColorToRGB(colorObj) {
-  const str = colorObj.original.toLowerCase();
+  // Accept either a raw string or the object produced by `extractColors`.
+  let type = null;
+  let original = "";
+  if (typeof colorObj === "string") {
+    original = colorObj;
+  } else if (colorObj && typeof colorObj === "object") {
+    original = colorObj.original || "";
+    type = colorObj.type || null;
+  } else {
+    return null;
+  }
 
-  // --- HEX CONVERSION ---
-  if (colorObj.type === "hex") {
+  const str = original.toLowerCase().trim();
+
+  if (type === "hex" || (!type && str.startsWith("#"))) {
     let hex = str.replace("#", "");
     if (hex.length === 3) {
-      hex = hex
-        .split("")
-        .map((char) => char + char)
-        .join("");
+      hex = hex.split("").map((char) => char + char).join("");
     } else if (hex.length === 4) {
-      hex = hex
-        .slice(0, 3)
-        .split("")
-        .map((char) => char + char)
-        .join("");
+      hex = hex.slice(0, 3).split("").map((char) => char + char).join("");
     }
     const num = parseInt(hex, 16);
+    if (Number.isNaN(num)) return null;
     return {
       r: (num >> 16) & 255,
       g: (num >> 8) & 255,
@@ -155,43 +160,50 @@ function parseColorToRGB(colorObj) {
     };
   }
 
-  // --- RGB CONVERSION ---
-  if (colorObj.type === "rgb") {
+  // rgb-like patterns (CSS `rgb(...)`)
+  if (type === "rgb" || (!type && str.startsWith("rgb("))) {
     const parts = str.match(/\d+/g);
-    if (!parts || parts.length < 3) return { r: 0, g: 0, b: 0 };
-    return {
-      r: parseInt(parts[0], 10),
-      g: parseInt(parts[1], 10),
-      b: parseInt(parts[2], 10),
-    };
+    if (parts && parts.length >= 3) {
+      return {
+        r: parseInt(parts[0], 10),
+        g: parseInt(parts[1], 10),
+        b: parseInt(parts[2], 10),
+      };
+    }
   }
 
-  // --- HSL CONVERSION ---
-  if (colorObj.type === "hsl") {
+  if (type === "hsl" || (!type && str.startsWith("hsl("))) {
     const parts = str.match(/[\d.]+/g);
-    if (!parts || parts.length < 3) return { r: 0, g: 0, b: 0 };
-
+    if (!parts || parts.length < 3) return null;
     const h = parseFloat(parts[0]);
     const s = parseFloat(parts[1]) / 100;
     const l = parseFloat(parts[2]) / 100;
 
-    // Mathematical formulas for HSL to RGB conversion
-    /** @param {number} n */
-    const k = (n) => (n + h / 30) % 12;
+    if (isNaN(h) || isNaN(s) || isNaN(l)) return null;
 
-    const a = s * Math.min(l, 1 - l);
+    if (s === 0) {
+      const v = Math.round(l * 255);
+      return { r: v, g: v, b: v };
+    }
 
-    /** @param {number} n */
-    const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
-
-    return {
-      r: Math.round(f(0) * 255),
-      g: Math.round(f(8) * 255),
-      b: Math.round(f(4) * 255),
+    const hue = ((h % 360) + 360) % 360 / 360; // 0..1
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
     };
+    const r = hue2rgb(p, q, hue + 1 / 3);
+    const g = hue2rgb(p, q, hue);
+    const b = hue2rgb(p, q, hue - 1 / 3);
+    return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
   }
 
-  return { r: 0, g: 0, b: 0 };
+  return null;
 }
 
 /**
