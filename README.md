@@ -71,7 +71,7 @@ Click the three dots (**`...`**) in the top-right corner of the Extensions panel
 ### Option 3: Terminal 
 Run the following command in your terminal:
 
-`code --install-extension contrast-checker-0.0.2.vsix `
+`code --install-extension contrast-checker-0.0.3.vsix `
 
 ---
 
