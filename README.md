@@ -95,6 +95,8 @@ This extension currently operates on a zero-config basis to keep your workspace 
 
 * **Tailwind CSS:** The extension successfully parses raw color formats inside arbitrary values (e.g., `text-[#3b82f6]`), but it does not currently resolve standard Tailwind class names (e.g., `text-blue-500`).
 
+* Object-Based Languages: The extension performs static text analysis. It will detect color strings (e.g., `[#FF0000]`), but cannot detect dynamic object instantiations like `[new Color(255, 0, 0)]` (Java).
+
 ### 🗺️ Future roadmap
 Given the massive adoption of Tailwind CSS and modern CSS architectures, the next planned releases will focus on:
 
