@@ -7,6 +7,9 @@ const vscode = require("vscode");
 function activate(context) {
   console.log('Extension "contrast-checker" is active!');
 
+  const outputChannel = vscode.window.createOutputChannel("Contrast Checker");
+  context.subscriptions.push(outputChannel);
+
   const calculateContrastCommand = vscode.commands.registerCommand(
     "contrast-checker.calculateContrast",
     async () => {
@@ -65,9 +68,6 @@ function activate(context) {
       const passesAAA_LargeText = ratio >= 4.5;
 
       // 7. Present results to the user nicely
-      const outputChannel =
-        vscode.window.createOutputChannel("Contrast Checker");
-
       outputChannel.clear(); // Clean last result
       outputChannel.appendLine(`=========================================`);
       outputChannel.appendLine(
@@ -106,21 +106,32 @@ function extractColors(text) {
   /** @type {{ original: string, type: 'hex' | 'rgb' | 'hsl' }[]} */
   const results = [];
 
-  const hexRegex = /#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/gi;
-  const rgbRegex = /rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)/gi;
-  const hslRegex = /hsla?\(\s*\d{1,3}(?:\.\d+)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)/gi;
+  // Single pass with named groups so results come back in document order:
+  // scanning each format separately would report "#fff vs rgb(0,0,0)" for
+  // "color: rgb(0, 0, 0); background: #fff;".
+  const colorRegex =
+    /(?<hex>#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})\b)|(?<rgb>rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\))|(?<hsl>hsla?\(\s*\d{1,3}(?:\.\d+)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\))/gi;
 
-  for (const match of text.matchAll(hexRegex)) {
-    results.push({ original: match[0].trim(), type: "hex" });
-  }
-  for (const match of text.matchAll(rgbRegex)) {
-    results.push({ original: match[0].trim(), type: "rgb" });
-  }
-  for (const match of text.matchAll(hslRegex)) {
-    results.push({ original: match[0].trim(), type: "hsl" });
+  for (const match of text.matchAll(colorRegex)) {
+    const groups = match.groups || {};
+    /** @type {'hex' | 'rgb' | 'hsl'} */
+    const type = groups.hex ? "hex" : groups.rgb ? "rgb" : "hsl";
+    results.push({ original: match[0].trim(), type });
   }
 
   return results;
+}
+
+/**
+ * Restricts a value to a closed range. NaN is passed through so callers can
+ * still reject it.
+ * @param {number} value
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 
 /**
@@ -146,10 +157,20 @@ function parseColorToRGB(colorObj) {
 
   if (type === "hex" || (!type && str.startsWith("#"))) {
     let hex = str.replace("#", "");
+    // parseInt stops at the first invalid digit, so validate up front instead
+    // of trusting it to return NaN (e.g. "ffzz" would parse as 255).
+    if (!/^[0-9a-f]+$/.test(hex)) return null;
     if (hex.length === 3) {
       hex = hex.split("").map((char) => char + char).join("");
     } else if (hex.length === 4) {
+      // #RGBA -> drop the alpha nibble, then expand.
       hex = hex.slice(0, 3).split("").map((char) => char + char).join("");
+    } else if (hex.length === 8) {
+      // #RRGGBBAA -> drop the alpha byte. Keeping it would overflow the
+      // 32-bit bitwise shifts below and yield garbage components.
+      hex = hex.slice(0, 6);
+    } else if (hex.length !== 6) {
+      return null;
     }
     const num = parseInt(hex, 16);
     if (Number.isNaN(num)) return null;
@@ -164,10 +185,13 @@ function parseColorToRGB(colorObj) {
   if (type === "rgb" || (!type && str.startsWith("rgb("))) {
     const parts = str.match(/\d+/g);
     if (parts && parts.length >= 3) {
+      // Out-of-gamut components are clamped, matching CSS: browsers render
+      // rgb(300, 0, 0) as rgb(255, 0, 0). Without this, luminance can exceed
+      // 1 and the ratio becomes meaningless.
       return {
-        r: parseInt(parts[0], 10),
-        g: parseInt(parts[1], 10),
-        b: parseInt(parts[2], 10),
+        r: clamp(parseInt(parts[0], 10), 0, 255),
+        g: clamp(parseInt(parts[1], 10), 0, 255),
+        b: clamp(parseInt(parts[2], 10), 0, 255),
       };
     }
   }
@@ -176,8 +200,8 @@ function parseColorToRGB(colorObj) {
     const parts = str.match(/[\d.]+/g);
     if (!parts || parts.length < 3) return null;
     const h = parseFloat(parts[0]);
-    const s = parseFloat(parts[1]) / 100;
-    const l = parseFloat(parts[2]) / 100;
+    const s = clamp(parseFloat(parts[1]) / 100, 0, 1);
+    const l = clamp(parseFloat(parts[2]) / 100, 0, 1);
 
     if (isNaN(h) || isNaN(s) || isNaN(l)) return null;
 

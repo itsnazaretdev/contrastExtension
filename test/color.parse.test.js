@@ -30,18 +30,34 @@ suite("Color Parsing", () => {
     });
   });
 
-  test("extracts new Color numeric tuples as rgb", () => {
+  test("ignores object instantiations like new Color(...)", () => {
+    // Documented limitation: only CSS color strings are parsed, not dynamic
+    // object constructors.
     const result = extractColors("notesScroll.setBackground(new Color(250, 250, 250));");
-    assert.strictEqual(result.length, 1);
-    assert.deepStrictEqual(result[0], {
-      original: "new Color(250, 250, 250)",
-      type: "rgb",
+    assert.strictEqual(result.length, 0);
+  });
+
+  test("parses 6-digit and 8-digit hex colors", () => {
+    assert.deepStrictEqual(parseColorToRGB({ original: "#ff0000", type: "hex" }), {
+      r: 255,
+      g: 0,
+      b: 0,
     });
-    assert.deepStrictEqual(parseColorToRGB(result[0]), {
-      r: 250,
-      g: 250,
-      b: 250,
+    assert.deepStrictEqual(parseColorToRGB({ original: "#ff0000ff", type: "hex" }), {
+      r: 255,
+      g: 0,
+      b: 0,
     });
+    assert.deepStrictEqual(parseColorToRGB({ original: "#0000ff80", type: "hex" }), {
+      r: 0,
+      g: 0,
+      b: 255,
+    });
+  });
+
+  test("returns null for malformed hex input", () => {
+    assert.strictEqual(parseColorToRGB({ original: "#12345", type: "hex" }), null);
+    assert.strictEqual(parseColorToRGB({ original: "#ffzz", type: "hex" }), null);
   });
 
   test("parses hsl colors at black and white boundaries", () => {
@@ -59,5 +75,26 @@ suite("Color Parsing", () => {
 
   test("returns null for invalid rgb input", () => {
     assert.strictEqual(parseColorToRGB({ original: "rgb()", type: "rgb" }), null);
+  });
+
+  test("clamps out-of-gamut rgb components", () => {
+    assert.deepStrictEqual(parseColorToRGB({ original: "rgb(300, 400, 999)", type: "rgb" }), {
+      r: 255,
+      g: 255,
+      b: 255,
+    });
+  });
+
+  test("returns colors in document order regardless of format", () => {
+    const result = extractColors("color: rgb(0, 0, 0); background: #ffffff;");
+    assert.deepStrictEqual(result, [
+      { original: "rgb(0, 0, 0)", type: "rgb" },
+      { original: "#ffffff", type: "hex" },
+    ]);
+  });
+
+  test("extracts hsl alongside other formats in order", () => {
+    const result = extractColors("#000 hsl(120, 50%, 50%) rgb(1, 2, 3)");
+    assert.deepStrictEqual(result.map((c) => c.type), ["hex", "hsl", "rgb"]);
   });
 });
