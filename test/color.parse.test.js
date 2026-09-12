@@ -97,4 +97,36 @@ suite("Color Parsing", () => {
     const result = extractColors("#000 hsl(120, 50%, 50%) rgb(1, 2, 3)");
     assert.deepStrictEqual(result.map((c) => c.type), ["hex", "hsl", "rgb"]);
   });
+
+  test("extracts space-separated hsl (CSS Color 4)", () => {
+    const result = extractColors("color: hsl(120 50% 50%); background: hsl(0 0% 100%);");
+    assert.deepStrictEqual(result, [
+      { original: "hsl(120 50% 50%)", type: "hsl" },
+      { original: "hsl(0 0% 100%)", type: "hsl" },
+    ]);
+  });
+
+  test("space and comma hsl syntax produce the same color", () => {
+    assert.deepStrictEqual(
+      parseColorToRGB({ original: "hsl(120 50% 50%)", type: "hsl" }),
+      parseColorToRGB({ original: "hsl(120, 50%, 50%)", type: "hsl" }),
+    );
+  });
+
+  test("parses hsl with a deg unit, decimals and slash alpha", () => {
+    const result = extractColors("hsl(120deg 50% 50% / 0.5) hsl(210.5 33.3% 20%)");
+    assert.deepStrictEqual(result.map((c) => c.original), [
+      "hsl(120deg 50% 50% / 0.5)",
+      "hsl(210.5 33.3% 20%)",
+    ]);
+    assert.deepStrictEqual(parseColorToRGB(result[0]), { r: 64, g: 191, b: 64 });
+  });
+
+  test("normalizes negative hue instead of dropping the sign", () => {
+    // -120deg and 240deg are the same hue.
+    assert.deepStrictEqual(
+      parseColorToRGB({ original: "hsl(-120 50% 50%)", type: "hsl" }),
+      parseColorToRGB({ original: "hsl(240 50% 50%)", type: "hsl" }),
+    );
+  });
 });

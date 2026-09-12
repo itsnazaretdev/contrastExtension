@@ -4,6 +4,17 @@ All notable changes to the "contrast-checker" extension will be documented in th
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [Unreleased]
+
+### Added
+
+- HSL colors written in the CSS Color 4 space syntax are now detected:
+  `hsl(120 50% 50%)`, `hsl(120deg 50% 50% / 0.5)`, `hsla(210 100% 50% / 80%)`.
+  Only the legacy comma syntax was recognised before.
+- Negative and `deg`-suffixed hues parse correctly. The previous numeric scrape
+  dropped the sign, so `hsl(-120 50% 50%)` was read as `hsl(120 50% 50%)`.
+- Fractional saturation and lightness (`hsl(210.5 33.3% 20%)`) are accepted.
+
 ## [0.0.4] - 2026-09-12
 
 ### Fixed

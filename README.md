@@ -25,7 +25,7 @@ This extension was built to solve specific workflow gaps:
 
 ## ✨ Features
 
-* **Multi-Format Parsing:** Seamlessly reads colors written in **HEX**, **RGB**, and **HSL** formats.
+* **Multi-Format Parsing:** Seamlessly reads colors written in **HEX**, **RGB**, and **HSL** formats. HSL accepts both the legacy comma syntax (`hsl(120, 50%, 50%)`) and the CSS Color 4 space syntax (`hsl(120deg 50% 50% / 0.5)`).
 
 * **WCAG 2.1 Compliance:** Computes exact relative luminance to calculate strict contrast ratios.
 

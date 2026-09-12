@@ -96,6 +96,28 @@ function activate(context) {
   context.subscriptions.push(calculateContrastCommand);
 }
 
+// Building blocks for the color scanner, kept separate because the combined
+// pattern is unreadable inline.
+const HEX_PATTERN = "#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})\\b";
+const RGB_PATTERN =
+  "rgba?\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*(?:,\\s*(?:0|1|0?\\.\\d+)\\s*)?\\)";
+// Hue accepts a sign and an optional `deg` unit; both are legal CSS.
+const HUE = "-?\\d{1,3}(?:\\.\\d+)?(?:deg)?";
+const PERCENT = "\\d{1,3}(?:\\.\\d+)?%";
+const ALPHA = "(?:0|1|0?\\.\\d+|\\d{1,3}%)";
+// Legacy comma syntax: hsl(120, 50%, 50%) with an optional trailing alpha.
+const HSL_COMMA_PATTERN = `hsla?\\(\\s*${HUE}\\s*,\\s*${PERCENT}\\s*,\\s*${PERCENT}\\s*(?:,\\s*${ALPHA}\\s*)?\\)`;
+// CSS Color 4 space syntax: hsl(120 50% 50%), alpha after a slash.
+const HSL_SPACE_PATTERN = `hsla?\\(\\s*${HUE}\\s+${PERCENT}\\s+${PERCENT}\\s*(?:\\/\\s*${ALPHA}\\s*)?\\)`;
+
+// Single pass with named groups so results come back in document order:
+// scanning each format separately would report "#fff vs rgb(0,0,0)" for
+// "color: rgb(0, 0, 0); background: #fff;".
+const COLOR_REGEX = new RegExp(
+  `(?<hex>${HEX_PATTERN})|(?<rgb>${RGB_PATTERN})|(?<hsl>${HSL_COMMA_PATTERN}|${HSL_SPACE_PATTERN})`,
+  "gi",
+);
+
 /**
  * Extrae los colores de un texto y los clasifica por tipo.
  *
@@ -106,13 +128,7 @@ function extractColors(text) {
   /** @type {{ original: string, type: 'hex' | 'rgb' | 'hsl' }[]} */
   const results = [];
 
-  // Single pass with named groups so results come back in document order:
-  // scanning each format separately would report "#fff vs rgb(0,0,0)" for
-  // "color: rgb(0, 0, 0); background: #fff;".
-  const colorRegex =
-    /(?<hex>#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})\b)|(?<rgb>rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\))|(?<hsl>hsla?\(\s*\d{1,3}(?:\.\d+)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\))/gi;
-
-  for (const match of text.matchAll(colorRegex)) {
+  for (const match of text.matchAll(COLOR_REGEX)) {
     const groups = match.groups || {};
     /** @type {'hex' | 'rgb' | 'hsl'} */
     const type = groups.hex ? "hex" : groups.rgb ? "rgb" : "hsl";
@@ -197,11 +213,16 @@ function parseColorToRGB(colorObj) {
   }
 
   if (type === "hsl" || (!type && str.startsWith("hsl("))) {
-    const parts = str.match(/[\d.]+/g);
-    if (!parts || parts.length < 3) return null;
-    const h = parseFloat(parts[0]);
-    const s = clamp(parseFloat(parts[1]) / 100, 0, 1);
-    const l = clamp(parseFloat(parts[2]) / 100, 0, 1);
+    // Capture the components explicitly rather than scraping every number:
+    // a generic /[\d.]+/ scan drops the hue's sign and cannot tell the comma
+    // syntax apart from the space syntax.
+    const parts = str.match(
+      /hsla?\(\s*(-?[\d.]+)(?:deg)?\s*(?:,\s*|\s+)(-?[\d.]+)%\s*(?:,\s*|\s+)(-?[\d.]+)%/,
+    );
+    if (!parts) return null;
+    const h = parseFloat(parts[1]);
+    const s = clamp(parseFloat(parts[2]) / 100, 0, 1);
+    const l = clamp(parseFloat(parts[3]) / 100, 0, 1);
 
     if (isNaN(h) || isNaN(s) || isNaN(l)) return null;
 
