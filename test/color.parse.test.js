@@ -77,6 +77,22 @@ suite("Color Parsing", () => {
     assert.strictEqual(parseColorToRGB({ original: "rgb()", type: "rgb" }), null);
   });
 
+  test("extracts space-separated rgb (CSS Color 4)", () => {
+    const result = extractColors("color: rgb(10 20 30); background: rgb(0 0 0 / 50%);");
+    assert.deepStrictEqual(result, [
+      { original: "rgb(10 20 30)", type: "rgb" },
+      { original: "rgb(0 0 0 / 50%)", type: "rgb" },
+    ]);
+    assert.deepStrictEqual(parseColorToRGB(result[0]), { r: 10, g: 20, b: 30 });
+  });
+
+  test("space and comma rgb syntax produce the same color", () => {
+    assert.deepStrictEqual(
+      parseColorToRGB({ original: "rgb(10 20 30)", type: "rgb" }),
+      parseColorToRGB({ original: "rgb(10, 20, 30)", type: "rgb" }),
+    );
+  });
+
   test("clamps out-of-gamut rgb components", () => {
     assert.deepStrictEqual(parseColorToRGB({ original: "rgb(300, 400, 999)", type: "rgb" }), {
       r: 255,

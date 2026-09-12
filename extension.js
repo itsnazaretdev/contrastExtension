@@ -99,12 +99,15 @@ function activate(context) {
 // Building blocks for the color scanner, kept separate because the combined
 // pattern is unreadable inline.
 const HEX_PATTERN = "#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})\\b";
-const RGB_PATTERN =
-  "rgba?\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*(?:,\\s*(?:0|1|0?\\.\\d+)\\s*)?\\)";
 // Hue accepts a sign and an optional `deg` unit; both are legal CSS.
 const HUE = "-?\\d{1,3}(?:\\.\\d+)?(?:deg)?";
 const PERCENT = "\\d{1,3}(?:\\.\\d+)?%";
 const ALPHA = "(?:0|1|0?\\.\\d+|\\d{1,3}%)";
+const CHANNEL = "\\d{1,3}";
+// Legacy comma syntax: rgb(0, 0, 0) with an optional trailing alpha.
+const RGB_COMMA_PATTERN = `rgba?\\(\\s*${CHANNEL}\\s*,\\s*${CHANNEL}\\s*,\\s*${CHANNEL}\\s*(?:,\\s*${ALPHA}\\s*)?\\)`;
+// CSS Color 4 space syntax: rgb(0 0 0), alpha after a slash.
+const RGB_SPACE_PATTERN = `rgba?\\(\\s*${CHANNEL}\\s+${CHANNEL}\\s+${CHANNEL}\\s*(?:\\/\\s*${ALPHA}\\s*)?\\)`;
 // Legacy comma syntax: hsl(120, 50%, 50%) with an optional trailing alpha.
 const HSL_COMMA_PATTERN = `hsla?\\(\\s*${HUE}\\s*,\\s*${PERCENT}\\s*,\\s*${PERCENT}\\s*(?:,\\s*${ALPHA}\\s*)?\\)`;
 // CSS Color 4 space syntax: hsl(120 50% 50%), alpha after a slash.
@@ -114,7 +117,7 @@ const HSL_SPACE_PATTERN = `hsla?\\(\\s*${HUE}\\s+${PERCENT}\\s+${PERCENT}\\s*(?:
 // scanning each format separately would report "#fff vs rgb(0,0,0)" for
 // "color: rgb(0, 0, 0); background: #fff;".
 const COLOR_REGEX = new RegExp(
-  `(?<hex>${HEX_PATTERN})|(?<rgb>${RGB_PATTERN})|(?<hsl>${HSL_COMMA_PATTERN}|${HSL_SPACE_PATTERN})`,
+  `(?<hex>${HEX_PATTERN})|(?<rgb>${RGB_COMMA_PATTERN}|${RGB_SPACE_PATTERN})|(?<hsl>${HSL_COMMA_PATTERN}|${HSL_SPACE_PATTERN})`,
   "gi",
 );
 
@@ -197,17 +200,19 @@ function parseColorToRGB(colorObj) {
     };
   }
 
-  // rgb-like patterns (CSS `rgb(...)`)
+  // rgb-like patterns (CSS `rgb(...)`), comma or space separated.
   if (type === "rgb" || (!type && str.startsWith("rgb("))) {
-    const parts = str.match(/\d+/g);
-    if (parts && parts.length >= 3) {
+    const parts = str.match(
+      /rgba?\(\s*(\d{1,3})\s*(?:,\s*|\s+)(\d{1,3})\s*(?:,\s*|\s+)(\d{1,3})/,
+    );
+    if (parts) {
       // Out-of-gamut components are clamped, matching CSS: browsers render
       // rgb(300, 0, 0) as rgb(255, 0, 0). Without this, luminance can exceed
       // 1 and the ratio becomes meaningless.
       return {
-        r: clamp(parseInt(parts[0], 10), 0, 255),
-        g: clamp(parseInt(parts[1], 10), 0, 255),
-        b: clamp(parseInt(parts[2], 10), 0, 255),
+        r: clamp(parseInt(parts[1], 10), 0, 255),
+        g: clamp(parseInt(parts[2], 10), 0, 255),
+        b: clamp(parseInt(parts[3], 10), 0, 255),
       };
     }
   }

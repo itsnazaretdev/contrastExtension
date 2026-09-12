@@ -17,7 +17,7 @@ This extension streamlines web development workflows by allowing fast validation
 
 This extension was built to solve specific workflow gaps:
 
-* **Format-Agnostic:** This extension natively parses **HEX**, **RGB**, and **HSL**  without requiring manual conversion.
+* **Format-Agnostic:** This extension natively parses **HEX**, **RGB**, and **HSL** — in both legacy comma and modern space syntax — without requiring manual conversion.
 
 * **On-Demand & Non-Intrusive:** Instead of scanning entire files and cluttering your editor with warning squiggles, it runs only when you request it, keeping your workspace clean.
 
@@ -25,7 +25,9 @@ This extension was built to solve specific workflow gaps:
 
 ## ✨ Features
 
-* **Multi-Format Parsing:** Seamlessly reads colors written in **HEX**, **RGB**, and **HSL** formats. HSL accepts both the legacy comma syntax (`hsl(120, 50%, 50%)`) and the CSS Color 4 space syntax (`hsl(120deg 50% 50% / 0.5)`).
+* **Multi-Format Parsing:** Seamlessly reads colors written in **HEX**, **RGB**, and **HSL** formats — including 8-digit hex with alpha (`#RRGGBBAA`).
+
+* **Legacy and Modern CSS Syntax:** Both the comma form (`rgb(0, 0, 0)`, `hsl(120, 50%, 50%)`) and the CSS Color 4 space form (`rgb(0 0 0 / 50%)`, `hsl(120deg 50% 50% / 0.5)`) are recognised.
 
 * **WCAG 2.1 Compliance:** Computes exact relative luminance to calculate strict contrast ratios.
 
@@ -82,7 +84,7 @@ Click the three dots (**`...`**) in the top-right corner of the Extensions panel
 ### Option 3: Terminal 
 Run the following command in your terminal:
 
-`code --install-extension contrast-checker-0.0.4.vsix `
+`code --install-extension contrast-checker-0.1.0.vsix `
 
 ---
 
@@ -108,11 +110,10 @@ Given the massive adoption of Tailwind CSS and modern CSS architectures, the nex
 
 ## 📜 Release notes
 
-### 0.0.4
-* Fixed 8-digit hex (`#RRGGBBAA`) parsing, which reported the wrong contrast ratio.
-* Colors are now reported in the order they appear in the selection.
-* Out-of-gamut RGB values are clamped to 0-255, matching browser behaviour.
-* Malformed hex input is rejected instead of parsed partially.
+### 0.1.0
+* Added support for the CSS Color 4 space syntax: `rgb(0 0 0 / 50%)`, `hsl(120deg 50% 50% / 0.5)`.
+* Negative and `deg`-suffixed hues now parse correctly.
+* Fractional saturation and lightness are accepted (`hsl(210.5 33.3% 20%)`).
 
 > Full history in the [CHANGELOG](CHANGELOG.md).
 
