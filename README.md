@@ -114,11 +114,7 @@ Given the massive adoption of Tailwind CSS and modern CSS architectures, the nex
 * Out-of-gamut RGB values are clamped to 0-255, matching browser behaviour.
 * Malformed hex input is rejected instead of parsed partially.
 
-### 0.0.3
-* Initial release.
-* Support for HEX, RGB, and HSL color strings.
-* Full 4-tier WCAG 2.1 report matrix implementation.
-* Native Output Channel printing integration.
+> Full history in the [CHANGELOG](CHANGELOG.md).
 
 ---
 ## ⚖️ License
