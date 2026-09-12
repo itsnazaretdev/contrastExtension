@@ -58,8 +58,10 @@ No external dependencies or configuration required.
 
 
 2. **Right-click** on the selection.
-3. Click on **`Contrast Checker: Check Selection`** in the context menu.
+3. Click on **`Check Accessibility Contrast`** in the context menu.
 4. Check the results instantly in the **Output** panel (under the `Contrast Checker` tab).
+
+> You can also run it from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) as **`Contrast Checker: Check Accessibility Contrast`**.
 
 > 💡 **Tip for Multiple Selections:** To select two separate color strings, hold `Alt` (Windows/Linux) or `Option` (macOS) while making your selections with the mouse.
 
@@ -106,7 +108,7 @@ Given the massive adoption of Tailwind CSS and modern CSS architectures, the nex
 
 ## 📜 Release notes
 
-### 1.0.0
+### 0.0.3
 * Initial release.
 * Support for HEX, RGB, and HSL color strings.
 * Full 4-tier WCAG 2.1 report matrix implementation.
