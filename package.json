@@ -2,7 +2,7 @@
   "name": "contrast-checker",
   "displayName": "Contrast Checker",
   "description": "Instantly calculate WCAG color contrast ratio from any text selection in your editor",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "itsnazaretdev",
   "icon": "logoCC.png",
   "repository": {

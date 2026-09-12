@@ -82,7 +82,7 @@ Click the three dots (**`...`**) in the top-right corner of the Extensions panel
 ### Option 3: Terminal 
 Run the following command in your terminal:
 
-`code --install-extension contrast-checker-0.0.3.vsix `
+`code --install-extension contrast-checker-0.0.4.vsix `
 
 ---
 
@@ -107,6 +107,12 @@ Given the massive adoption of Tailwind CSS and modern CSS architectures, the nex
 2. **CSS Custom Properties Support:** Resolving CSS variables by scanning the document's `:root` declarations.
 
 ## 📜 Release notes
+
+### 0.0.4
+* Fixed 8-digit hex (`#RRGGBBAA`) parsing, which reported the wrong contrast ratio.
+* Colors are now reported in the order they appear in the selection.
+* Out-of-gamut RGB values are clamped to 0-255, matching browser behaviour.
+* Malformed hex input is rejected instead of parsed partially.
 
 ### 0.0.3
 * Initial release.
