@@ -21,7 +21,8 @@
     "commands": [
       {
         "command": "contrast-checker.calculateContrast",
-        "title": "Check Accessibility Contrast"
+        "title": "Check Accessibility Contrast",
+        "category": "Contrast Checker"
       }
     ],
     "menus": {
@@ -47,7 +48,7 @@
     "eslint": "10.5.0",
     "globals": "14.0.0",
     "@vscode/test-cli": "0.0.15",
-    "@vscode/test-electron": "3.0.0",
+    "@vscode/test-electron": "3.1.0",
     "@vscode/vsce": "^2.0.2"
   },
   "overrides": {
